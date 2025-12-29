@@ -14,6 +14,8 @@ services:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql # Persist database data
+    networks:
+      - app-network
 
   django:
     build: ./django # Build from the django/ directory with a Dockerfile
@@ -30,18 +32,37 @@ services:
       DATABASE_NAME: django_db
       DATABASE_USER: django_user
       DATABASE_PASSWORD: django_password
+    networks:
+      - app-network
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin_container
     environment:
       PMA_HOST: db # Connect to the 'db' service name
       MYSQL_ROOT_PASSWORD: your_root_password
-    ports:
-      - "8081:80" # Access phpMyAdmin at http://localhost:8081
-    #networks:
-    #  - app-network
+    #ports:
+    #  - "8081:80" # Access phpMyAdmin at http://localhost:8081
+    networks:
+      - app-network
     depends_on:
       - db
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx_reverse_proxy
+    ports:
+      - "80:80"
+      - "443:443" # Expose port 443 to the host
+    volumes:
+      # Mount Nginx configuration and SSL certificates
+      - ./nginxconfig/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginxcerts/certs/ssl:/etc/nginx/ssl:ro
+
+    depends_on:
+      - phpmyadmin
+    networks:
+      - app-network
 
 #  apache:
 #    image: httpd:2.4 # Use an Apache base image
@@ -57,3 +78,10 @@ services:
 
 volumes:
   db_data:
+  nginx_config:
+
+networks:
+  app-network:
+    driver: bridge
+
+
