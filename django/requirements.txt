@@ -1,0 +1,5 @@
+Django>=4.0
+gunicorn
+mysqlclient # Required for Django to connect to MySQL
+dj-database-url # Useful for parsing the DATABASE_URL environment variable
+
