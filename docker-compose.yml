@@ -32,7 +32,9 @@ services:
   django:
     build: ./django # Build from the django/ directory with a Dockerfile
     container_name: django_app
-    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000" # Run migrations and then start the app
+    #command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000" # Run migrations and then start the app
+    command: sh -c "python manage.py migrate && gunicorn --bind 0.0.0.0:8000 my_docker_django_app.wsgi:application" 
+    #command: sh -c "python manage.py migrate" 
     volumes:
       - ./django:/app # Mount your project code
     environment:
@@ -40,8 +42,8 @@ services:
       DATABASE_NAME: django_db
       DATABASE_USER: django_user
       DATABASE_PASSWORD: django_password
-    #ports:
-    #  - "8000:8000"
+    ports:
+      - "8000:8000"
     networks:
       - app-network
     depends_on:
