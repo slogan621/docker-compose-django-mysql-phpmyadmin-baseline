@@ -23,17 +23,17 @@ services:
     command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000" # Run migrations and then start the app
     volumes:
       - ./django:/app # Mount your project code
-    ports:
-      - "8000:8000"
-    depends_on:
-      - db # Ensure the database starts first
     environment:
       DATABASE_HOST: mysql_db # Use the service name as the hostname
       DATABASE_NAME: django_db
       DATABASE_USER: django_user
       DATABASE_PASSWORD: django_password
+    #ports:
+    #  - "8000:8000"
     networks:
       - app-network
+    depends_on:
+      - db # Ensure the database starts first
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -48,21 +48,35 @@ services:
     depends_on:
       - db
 
+  nginx_django:
+    image: nginx:alpine
+    container_name: nginx_django_reverse_proxy
+    ports:
+      #- "80:80"
+      - "9443:443" # Expose port 443 to the host
+    volumes:
+      # Mount Nginx configuration and SSL certificates
+      - ./nginxdjangoconfig/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginxdjangocerts/certs/ssl:/etc/nginx/ssl:ro
+    networks:
+      - app-network    
+    depends_on:
+      - django
+
   nginx:
     image: nginx:alpine
     container_name: nginx_reverse_proxy
     ports:
-      - "80:80"
-      - "443:443" # Expose port 443 to the host
+      #- "80:80"
+      - "8443:443" # Expose port 443 to the host
     volumes:
       # Mount Nginx configuration and SSL certificates
       - ./nginxconfig/nginx/conf.d:/etc/nginx/conf.d:ro
       - ./nginxcerts/certs/ssl:/etc/nginx/ssl:ro
-
-    depends_on:
-      - phpmyadmin
     networks:
       - app-network
+    depends_on:
+      - phpmyadmin
 
 #  apache:
 #    image: httpd:2.4 # Use an Apache base image
