@@ -1,6 +1,18 @@
 version: '3.8'
 
 services:
+  traffic-monitor:
+    image: kaazing/tcpdump
+    container_name: traffic_monitor
+    # Use 'network_mode: service:target_service_name' to monitor a specific service
+    # or 'network_mode: "host"' to capture all host traffic (on Linux/Mac)
+    # The 'service' approach requires the target service to be running.
+    # The 'host' approach is easier for general local traffic capture.
+    #network_mode: "host"
+    network_mode: service:django
+    volumes:
+      - ./tcpdump_data:/tcpdump_data # Mount a local dir to save capture files
+    command: -i any -w /tcpdump_data/capture.pcap -C 10
   db:
     image: mysql:8.0 # Use a specific MySQL version
     container_name: mysql_db
@@ -53,7 +65,7 @@ services:
     container_name: nginx_django_reverse_proxy
     ports:
       #- "80:80"
-      - "9443:443" # Expose port 443 to the host
+      - "443:443" # Expose port 443 to the host
     volumes:
       # Mount Nginx configuration and SSL certificates
       - ./nginxdjangoconfig/nginx/conf.d:/etc/nginx/conf.d:ro
