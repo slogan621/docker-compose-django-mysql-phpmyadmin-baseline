@@ -34,8 +34,26 @@ SECRET_KEY = 'django-insecure-=3f3@+00c+096f@$w0bt_c-!9hkq)olsv!+&hg&9vh*oibi(6j
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
+#CSRF_COOKIE_SECURE = True
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://localhost",
+    "https://localhost:8000",
+    "http://localhost",
+    "http://localhost:8000",
+    "http://127.0.0.1",
+    # Add other trusted origins here if necessary
+]
+
+#CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")
+
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    # Add your production domain names here later
+]
 
 # Application definition
 
