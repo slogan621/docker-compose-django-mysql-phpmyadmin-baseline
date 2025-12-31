@@ -39,13 +39,10 @@ services:
   django:
     build: ./django # Build from the django/ directory with a Dockerfile
     container_name: django_app
-    #command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000" # Run migrations and then start the app
     command: sh -c "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn --bind 0.0.0.0:8000 my_docker_django_app.wsgi:application" 
-    #command: sh -c "python manage.py migrate" 
     volumes:
       - ./django:/app # Mount your project code
     environment:
-      #DATABASE_HOST: mysql_db # Use the service name as the hostname
       DATABASE_HOST: db # Use the service name as the hostname
       DATABASE_NAME: django_db
       DATABASE_USER: django_user
@@ -64,8 +61,6 @@ services:
     environment:
       PMA_HOST: db # Connect to the 'db' service name
       MYSQL_ROOT_PASSWORD: your_root_password
-    #ports:
-    #  - "8081:80" # Access phpMyAdmin at http://localhost:8081
     networks:
       - app-network
     depends_on:
@@ -75,7 +70,6 @@ services:
     image: nginx:alpine
     container_name: nginx_django_reverse_proxy
     ports:
-      #- "80:80"
       - "443:443" # Expose port 443 to the host
     volumes:
       # Mount Nginx configuration and SSL certificates
@@ -91,8 +85,7 @@ services:
     image: nginx:alpine
     container_name: nginx_reverse_proxy
     ports:
-      #- "80:80"
-      - "8443:443" # Expose port 443 to the host
+      - "8443:443" # Expose port 8443 to the host
     volumes:
       # Mount Nginx configuration and SSL certificates
       - ./nginxconfig/nginx/conf.d:/etc/nginx/conf.d:ro
@@ -101,18 +94,6 @@ services:
       - app-network
     depends_on:
       - phpmyadmin
-
-#  apache:
-#    image: httpd:2.4 # Use an Apache base image
-#    container_name: apache_web
-#    ports:
-#      - "80:80" # Map host port 80 to container port 80
-#    volumes:
-#      - ./django/static:/usr/local/apache2/htdocs/static # Mount Django static files
-#      - ./apache/apache2.conf:/usr/local/apache2/conf/apache2.conf # Custom Apache config
-#      - ./apache/000-default.conf:/usr/local/apache2/conf/sites-enabled/000-default.conf # Virtual host config
-#    depends_on:
-#      - django # Ensure Django app is running
 
 volumes:
   db_data:
