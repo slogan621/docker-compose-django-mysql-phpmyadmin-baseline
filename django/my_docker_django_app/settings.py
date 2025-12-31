@@ -10,7 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,8 +27,26 @@ SECRET_KEY = 'django-insecure-=3f3@+00c+096f@$w0bt_c-!9hkq)olsv!+&hg&9vh*oibi(6j
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
+#CSRF_COOKIE_SECURE = True
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://localhost",
+    "https://localhost:8000",
+    "http://localhost",
+    "http://localhost:8000",
+    "http://127.0.0.1",
+    # Add other trusted origins here if necessary
+]
+
+#CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")
+
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    # Add your production domain names here later
+]
 
 # Application definition
 
@@ -69,17 +89,33 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'my_docker_django_app.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': BASE_DIR / 'db.sqlite3',
+#    }
+#}
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.environ.get('DATABASE_NAME', 'django_db'),
+        'USER': os.environ.get('DATABASE_USER', 'django_user'),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD', 'django_password'),
+        'HOST': os.environ.get('DATABASE_HOST', 'db'), # Use the service name as the host
+        'PORT': os.environ.get('DATABASE_PORT', '3306'),
     }
 }
 
+#DATABASES = {
+#    'default': dj_database_url.config(
+#        default=os.environ.get('DATABASE_URL'),
+#        conn_max_age=600
+#    )
+#}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -115,7 +151,18 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+#STATIC_URL = 'static/'
+
+STATIC_URL = '/static/'
+
+# Define the directory where collected static files will be stored
+# A common convention is to name it 'staticfiles'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') 
+
+# You may also have STATICFILES_DIRS for other non-app specific static files
+#STATICFILES_DIRS = [
+#    os.path.join(BASE_DIR, 'staticfiles'),
+#]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
