@@ -2,7 +2,7 @@
 
 This project is a baseline docker configuration for creating a django website with the following features:
 
-* HTTPS only. HTTP requests get redirected as HTTP.
+* HTTPS support.
 * MySQL. Could be adapted to postgres as well if you like.
 * Support for phpmyadmin. Very nice way to inspect and work with a MySQL database.
 * Based on docker compose pipeline: download, install docker and docker compose, run `docker compose up`.
@@ -38,6 +38,6 @@ This project is a baseline docker configuration for creating a django website wi
   captures packets to a pcap file suitable for debugging the net configuration via `tcpdump` and 
   `wireshark`. Packet capture will be saved to a local file on your host in the directory `./tcpdump_data`
   I used this to inspect packet headers when debugging my CSRF config in django and nginx. What's cool
-  about this is the local network between the reverse proxy and gunicorn passes the packets around in HTTP 
-  so you can inspect the packets.
+  about this is the local network traffic between the reverse proxy and gunicorn is HTTP so capturing 
+  the local network allows you to inspect the packets after they are decrypted. 
 
