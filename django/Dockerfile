@@ -11,6 +11,3 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 COPY . /app/
 
 EXPOSE 8000
-
-# Command to run Gunicorn
-#CMD ["gunicorn", "--bind", "0.0.0.0:8000", "my_docker_django_app.wsgi:application"]
